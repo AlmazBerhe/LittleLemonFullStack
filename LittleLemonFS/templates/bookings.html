@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+<section>
+    {% for booking in bookings %}
+    <div>{{ booking }}</div>
+    {% endfor %}
+</section>
+    
+{% endblock content %}
+    
