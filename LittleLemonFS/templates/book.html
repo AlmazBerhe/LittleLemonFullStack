@@ -3,8 +3,20 @@
 
 {% block content %}
 <section>
-    <div>{{ form }}</div>
+    <h1>Make a Reservation</h1>
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div>
+            <button type="submit">Reserve</button>
+        </div>
+    </form>
 </section>
+
+<script>
+    var dateField = document.getElementById('id_reservation_date');
+    dateField.type = "date";
+</script>
     
 {% endblock content %}
     
