@@ -5,6 +5,7 @@ from .models import Booking, Menu
 from rest_framework import generics, status
 from datetime import datetime
 from .serializers import BookingsSerializer, SingleBookingSerializer
+from django.http import JsonResponse
 
 
 def home(request):
@@ -31,36 +32,57 @@ class BookingView(generics.RetrieveUpdateDestroyAPIView):
     
     
     def get(self, request):
-        return render(request, 'book.html', {'form': BookingForm})
+        date = request.GET.get('date',datetime.today().date())
+        bookings = []
+        if date:
+            bookings = Booking.objects.all().filter(reservation_date=date)
+            
+        return render(request, 'book.html', {'form': BookingForm, 'bookings': bookings})
     
     def post(self, request):
         first_name = request.data.get("first_name")
         reservation_date = request.data.get("reservation_date")
         reservation_slot = request.data.get("reservation_slot")
         
-        booking = Booking(
-            first_name= first_name, 
-            reservation_date=reservation_date, 
-            reservation_slot=reservation_slot
-            )
-        booking.save()
+        exist = Booking.objects.filter(reservation_date=reservation_date).filter(reservation_slot=reservation_slot)
         
-        return render(request, 'book.html', {'form': BookingForm})
-
-
+        if not exist:
+        
+            booking = Booking(
+                first_name= first_name, 
+                reservation_date=reservation_date, 
+                reservation_slot=reservation_slot
+                )
+            booking.save()
+                        
+            return render(request, 'book.html', {'form': BookingForm, 'reservation_date': reservation_date})
+        
+        return HttpResponse("{'error': 1}", content_type='application/json')
+        
 class BookingsView(generics.ListAPIView):
     serializer_class = BookingsSerializer
     
     def get(self, request):
-        date = request.GET.get('date', datetime.today().date())
+        date = request.GET.get('date')
+        if date:
+            bookings = Booking.objects.all().filter(reservation_date=date)
+        else:
+            bookings = Booking.objects.all()
+            
+        booking_data = list(bookings.values())
+        
+        return JsonResponse(booking_data, safe=False)
+
+class ReservationsView(generics.ListAPIView):
+    serializer_class = BookingsSerializer
+    
+    def get(self, request):
+        
         bookings = Booking.objects.all()
-        
-        if not bookings:
-            return render(request, 'bookings.html', {'message': ""}, status=status.HTTP_200_OK)
-        
-        booking_json = serializers.serialize('json', bookings)
-        context = {'bookings': booking_json}
-        
-        return render(request, 'bookings.html', context, status=status.HTTP_200_OK)
+            
+        bookings_data = serializers.serialize('json', bookings)
+            
+        return render(request, 'bookings.html', {'bookings': bookings_data})
+      
     
     
