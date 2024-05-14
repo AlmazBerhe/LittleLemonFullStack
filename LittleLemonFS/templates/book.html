@@ -60,14 +60,13 @@
 
                 for (index in data) {
                     item = data[index];
-                    console.log('item', item);
                     reserved_slots.push(item.reservation_slot)
                     bookings += `<p>${item.first_name} - ${formatTime(item.reservation_slot)}`
                 }
 
                 let slot_options = `<option value="0" disabled>Select time</option>`;
 
-                for (index = 10; index <= 20; index++) {
+                for (index = 14; index <= 23; index++) {
                     var label = formatTime(index);
 
                     if (reserved_slots.includes(index)) {
@@ -102,7 +101,7 @@
         let dateValue = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
 
         today_or_future = reservationDateElement.value >= dateValue;
-        console.log(today_or_future, reservationDateElement.value + " " + dateValue)
+       
         if (!today_or_future) {
             reservationSlotElement.setAttribute('disabled', true);
             reservationButton.setAttribute('disabled', true);
